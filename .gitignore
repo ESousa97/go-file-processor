@@ -1,0 +1,15 @@
+# Binaries
+bin/
+processor
+processor.exe
+
+# Data
+data/users_large.csv
+data/output.json
+
+# Tooling
+tmp_generator.go
+
+# IDE
+.idea/
+.vscode/

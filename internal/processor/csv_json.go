@@ -4,82 +4,125 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
+	"sync"
 
 	"go-file-processor/internal/domain"
 )
 
 // CSVToJSONProcessor implements the Processor interface for CSV to JSON conversion.
-type CSVToJSONProcessor struct {
-	sourceData [][]string
-	records    []domain.User
-}
+type CSVToJSONProcessor struct{}
 
 // NewCSVToJSONProcessor creates a new instance of CSVToJSONProcessor.
 func NewCSVToJSONProcessor() *CSVToJSONProcessor {
 	return &CSVToJSONProcessor{}
 }
 
-// Read opens and reads the CSV file content.
-func (p *CSVToJSONProcessor) Read(source string) error {
-	file, err := os.Open(source)
+// Process executes the full pipeline using a Worker Pool and streaming.
+func (p *CSVToJSONProcessor) Process(source, destination string, workerCount int) error {
+	// 1. Open source file
+	srcFile, err := os.Open(source)
 	if err != nil {
 		return fmt.Errorf("could not open source file: %w", err)
 	}
-	defer file.Close()
+	defer srcFile.Close()
 
-	reader := csv.NewReader(file)
-	data, err := reader.ReadAll()
+	// 2. Open destination file
+	dstFile, err := os.Create(destination)
 	if err != nil {
-		return fmt.Errorf("could not read csv data: %w", err)
+		return fmt.Errorf("could not create destination file: %w", err)
 	}
+	defer dstFile.Close()
 
-	if len(data) < 2 {
-		return fmt.Errorf("csv file is empty or missing headers")
+	reader := csv.NewReader(srcFile)
+	
+	// Read headers first
+	headers, err := reader.Read()
+	if err != nil {
+		return fmt.Errorf("could not read csv headers: %w", err)
 	}
-
-	p.sourceData = data
-	return nil
-}
-
-// Transform maps the CSV columns to the User struct.
-// It assumes the first row contains headers matching the struct field names.
-func (p *CSVToJSONProcessor) Transform() error {
-	headers := p.sourceData[0]
-	rows := p.sourceData[1:]
 
 	headerMap := make(map[string]int)
 	for i, h := range headers {
 		headerMap[h] = i
 	}
 
-	p.records = make([]domain.User, 0, len(rows))
+	// Channels for Worker Pool
+	jobs := make(chan []string, 100)
+	results := make(chan domain.User, 100)
+	errChan := make(chan error, 1)
 
-	for _, row := range rows {
-		user := domain.User{
-			ID:    p.getValue(row, headerMap, "id"),
-			Name:  p.getValue(row, headerMap, "name"),
-			Email: p.getValue(row, headerMap, "email"),
-			Role:  p.getValue(row, headerMap, "role"),
+	var wg sync.WaitGroup
+
+	// Start Workers
+	for i := 0; i < workerCount; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for row := range jobs {
+				user := domain.User{
+					ID:    p.getValue(row, headerMap, "id"),
+					Name:  p.getValue(row, headerMap, "name"),
+					Email: p.getValue(row, headerMap, "email"),
+					Role:  p.getValue(row, headerMap, "role"),
+				}
+				results <- user
+			}
+		}()
+	}
+
+	// Start Consumer (Writer)
+	done := make(chan bool)
+	go func() {
+		defer func() { done <- true }()
+		
+		dstFile.WriteString("[\n")
+		encoder := json.NewEncoder(dstFile)
+		encoder.SetIndent("  ", "  ")
+		
+		first := true
+		for user := range results {
+			if !first {
+				dstFile.WriteString(",\n")
+			}
+			encoder.Encode(user)
+			first = false
 		}
-		p.records = append(p.records, user)
-	}
+		dstFile.WriteString("\n]")
+	}()
 
-	return nil
-}
+	// Producer: Read CSV rows and send to jobs channel
+	go func() {
+		defer close(jobs)
+		for {
+			row, err := reader.Read()
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
+				select {
+				case errChan <- fmt.Errorf("error reading csv row: %w", err):
+				default:
+				}
+				return
+			}
+			jobs <- row
+		}
+	}()
 
-// Write encodes the records into JSON and writes to the destination path.
-func (p *CSVToJSONProcessor) Write(destination string) error {
-	file, err := os.Create(destination)
-	if err != nil {
-		return fmt.Errorf("could not create destination file: %w", err)
-	}
-	defer file.Close()
+	// Wait for workers to finish
+	wg.Wait()
+	close(results)
 
-	encoder := json.NewEncoder(file)
-	encoder.SetIndent("", "  ")
-	if err := encoder.Encode(p.records); err != nil {
-		return fmt.Errorf("could not encode records to json: %w", err)
+	// Wait for consumer to finish
+	<-done
+
+	// Check for producer errors
+	select {
+	case err := <-errChan:
+		return err
+	default:
 	}
 
 	return nil

@@ -11,8 +11,9 @@ import (
 
 func main() {
 	// Setup paths
-	inputPath := "data/users.csv"
+	inputPath := "data/users_large.csv"
 	outputPath := "data/output.json"
+	workerCount := 5 // Configurable number of workers
 
 	// Ensure data directory exists
 	if err := os.MkdirAll(filepath.Dir(inputPath), 0755); err != nil {
@@ -28,18 +29,10 @@ func main() {
 	csvProcessor := processor.NewCSVToJSONProcessor()
 
 	// Execute Pipeline
-	fmt.Printf("Processing %s...\n", inputPath)
+	fmt.Printf("Processing %s with %d workers...\n", inputPath, workerCount)
 
-	if err := csvProcessor.Read(inputPath); err != nil {
-		log.Fatalf("Read Error: %v", err)
-	}
-
-	if err := csvProcessor.Transform(); err != nil {
-		log.Fatalf("Transform Error: %v", err)
-	}
-
-	if err := csvProcessor.Write(outputPath); err != nil {
-		log.Fatalf("Write Error: %v", err)
+	if err := csvProcessor.Process(inputPath, outputPath, workerCount); err != nil {
+		log.Fatalf("Processing Error: %v", err)
 	}
 
 	fmt.Printf("Success! Output written to %s\n", outputPath)
