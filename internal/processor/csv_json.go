@@ -20,7 +20,7 @@ func NewCSVToJSONProcessor() *CSVToJSONProcessor {
 }
 
 // Process executes the full pipeline using a Worker Pool and streaming.
-func (p *CSVToJSONProcessor) Process(source, destination string, workerCount int) error {
+func (p *CSVToJSONProcessor) Process(source, destination string, config Config) error {
 	// 1. Open source file
 	srcFile, err := os.Open(source)
 	if err != nil {
@@ -56,7 +56,7 @@ func (p *CSVToJSONProcessor) Process(source, destination string, workerCount int
 	var wg sync.WaitGroup
 
 	// Start Workers
-	for i := 0; i < workerCount; i++ {
+	for i := 0; i < config.WorkerCount; i++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -67,7 +67,19 @@ func (p *CSVToJSONProcessor) Process(source, destination string, workerCount int
 					Email: p.getValue(row, headerMap, "email"),
 					Role:  p.getValue(row, headerMap, "role"),
 				}
-				results <- user
+
+				// Apply Transformations (Middleware Chain)
+				keep := true
+				for _, transform := range config.Transformers {
+					if !transform(&user) {
+						keep = false
+						break
+					}
+				}
+
+				if keep {
+					results <- user
+				}
 			}
 		}()
 	}

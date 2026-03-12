@@ -13,7 +13,6 @@ func main() {
 	// Setup paths
 	inputPath := "data/users_large.csv"
 	outputPath := "data/output.json"
-	workerCount := 5 // Configurable number of workers
 
 	// Ensure data directory exists
 	if err := os.MkdirAll(filepath.Dir(inputPath), 0755); err != nil {
@@ -25,13 +24,20 @@ func main() {
 		createSampleCSV(inputPath)
 	}
 
-	// Initialize Processor
+	// Initialize Processor with Config
+	config := processor.Config{
+		WorkerCount: 5,
+		Transformers: []processor.Transformer{
+			processor.EmailValidatorTransformer(),    // Filter invalid emails
+			processor.SensitiveDataTransformer(true), // Mask Role field
+		},
+	}
 	csvProcessor := processor.NewCSVToJSONProcessor()
 
 	// Execute Pipeline
-	fmt.Printf("Processing %s with %d workers...\n", inputPath, workerCount)
+	fmt.Printf("Processing %s with %d workers and transformations...\n", inputPath, config.WorkerCount)
 
-	if err := csvProcessor.Process(inputPath, outputPath, workerCount); err != nil {
+	if err := csvProcessor.Process(inputPath, outputPath, config); err != nil {
 		log.Fatalf("Processing Error: %v", err)
 	}
 
@@ -39,7 +45,11 @@ func main() {
 }
 
 func createSampleCSV(path string) {
-	content := "id,name,email,role\n1,Admin User,admin@example.com,administrator\n2,Regular Joe,joe@example.com,editor\n3,Jane Doe,jane@example.com,viewer\n"
+	// Including some invalid data to test transformers
+	content := "id,name,email,role\n" +
+		"1,Admin User,admin@example.com,administrator\n" +
+		"2,Invalid Email,joe-at-example.com,editor\n" + // Should be filtered out
+		"3,Jane Doe,jane@example.com,viewer\n"
 	err := os.WriteFile(path, []byte(content), 0644)
 	if err != nil {
 		log.Printf("Warning: could not create sample csv: %v", err)
