@@ -5,6 +5,7 @@ bin/
 
 # Data
 data/users_large.csv
+data/users.csv
 data/output.json
 
 # Tooling
