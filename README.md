@@ -42,13 +42,13 @@ metrics, err := proc.Process("input.csv", "output.json", config)
 
 ## Stack Tecnológico
 
-| Tecnologia | Papel |
-|---|---|
-| **Go** | Linguagem principal (Concorrência nativa) |
-| **Worker Pool** | Gerenciamento de paralelismo e carga |
-| **slog** | Structured logging para observabilidade |
-| **Atomic Counters** | Coleta de métricas sem lock |
-| **Channels** | Comunicação segura entre Producer/Worker/Consumer |
+| Tecnologia          | Papel                                             |
+| ------------------- | ------------------------------------------------- |
+| **Go**              | Linguagem principal (Concorrência nativa)         |
+| **Worker Pool**     | Gerenciamento de paralelismo e carga              |
+| **slog**            | Structured logging para observabilidade           |
+| **Atomic Counters** | Coleta de métricas sem lock                       |
+| **Channels**        | Comunicação segura entre Producer/Worker/Consumer |
 
 ## Pré-requisitos
 
@@ -77,13 +77,13 @@ make bench
 
 ## Makefile Targets
 
-| Target | Descrição |
-|---|---|
-| `build` | Compila o binário `fileproc` na raiz do projeto |
-| `test` | Executa todos os testes unitários |
-| `bench` | Roda a suíte de benchmarks (Sequencial vs Paralelo) |
+| Target          | Descrição                                           |
+| --------------- | --------------------------------------------------- |
+| `build`         | Compila o binário `fileproc` na raiz do projeto     |
+| `test`          | Executa todos os testes unitários                   |
+| `bench`         | Roda a suíte de benchmarks (Sequencial vs Paralelo) |
 | `generate-data` | Gera arquivo `large_test.csv` com 100.000 registros |
-| `clean` | Remove binários e arquivos temporários de teste |
+| `clean`         | Remove binários e arquivos temporários de teste     |
 
 ## Arquitetura
 
@@ -100,11 +100,11 @@ Veja a documentação completa e exemplos em [pkg.go.dev](https://pkg.go.dev/git
 
 ## Configuração (CLI Flags)
 
-| Flag | Descrição | Tipo | Padrão |
-|---|---|---|---|
-| `-input` | Caminho do arquivo CSV de entrada | string | `input.csv` |
-| `-output` | Caminho do arquivo JSON de saída | string | `output.json` |
-| `-workers` | Número de workers simultâneos | int | `4` |
+| Flag       | Descrição                         | Tipo   | Padrão        |
+| ---------- | --------------------------------- | ------ | ------------- |
+| `-input`   | Caminho do arquivo CSV de entrada | string | `input.csv`   |
+| `-output`  | Caminho do arquivo JSON de saída  | string | `output.json` |
+| `-workers` | Número de workers simultâneos     | int    | `4`           |
 
 ## Roadmap
 
@@ -112,8 +112,6 @@ Veja a documentação completa e exemplos em [pkg.go.dev](https://pkg.go.dev/git
 - [x] Camada de Transformação (Middleware)
 - [x] Sistema de Métricas e Logs Estruturados
 - [x] Benchmarking e Otimização
-- [ ] Suporte a outros formatos (XML, Parquet)
-- [ ] Interface Web para visualização de métricas em tempo real
 
 ## Contribuindo
 
@@ -126,5 +124,6 @@ Distribuído sob a licença MIT. Veja `LICENSE` para mais informações.
 ## Autor
 
 **Enoque Sousa**
+
 - [Portfólio](https://enoquesousa.vercel.app)
 - [GitHub](https://github.com/ESousa97)
