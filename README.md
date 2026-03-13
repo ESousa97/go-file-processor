@@ -6,13 +6,14 @@
 
   <br>
 
-  [![CI](https://github.com/ESousa97/go-file-processor/actions/workflows/ci.yml/badge.svg)](https://github.com/ESousa97/go-file-processor/actions)
-  [![Go Report Card](https://goreportcard.com/badge/github.com/ESousa97/go-file-processor)](https://goreportcard.com/report/github.com/ESousa97/go-file-processor)
-  [![CodeFactor](https://www.codefactor.io/repository/github/ESousa97/go-file-processor/badge)](https://www.codefactor.io/repository/github/ESousa97/go-file-processor)
-  [![Go Reference](https://pkg.go.dev/badge/github.com/ESousa97/go-file-processor.svg)](https://pkg.go.dev/github.com/ESousa97/go-file-processor)
-  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-  [![Go Version](https://img.shields.io/github/go-mod/go-version/ESousa97/go-file-processor)](https://github.com/ESousa97/go-file-processor)
-  [![Last Commit](https://img.shields.io/github/last-commit/ESousa97/go-file-processor)](https://github.com/ESousa97/go-file-processor/commits/main)
+[![CI](https://github.com/ESousa97/go-file-processor/actions/workflows/ci.yml/badge.svg)](https://github.com/ESousa97/go-file-processor/actions)
+[![Go Report Card](https://goreportcard.com/badge/github.com/ESousa97/go-file-processor)](https://goreportcard.com/report/github.com/ESousa97/go-file-processor)
+[![CodeFactor](https://www.codefactor.io/repository/github/ESousa97/go-file-processor/badge)](https://www.codefactor.io/repository/github/ESousa97/go-file-processor)
+[![Go Reference](https://pkg.go.dev/badge/github.com/ESousa97/go-file-processor.svg)](https://pkg.go.dev/github.com/ESousa97/go-file-processor)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Go Version](https://img.shields.io/github/go-mod/go-version/ESousa97/go-file-processor)](https://github.com/ESousa97/go-file-processor)
+[![Last Commit](https://img.shields.io/github/last-commit/ESousa97/go-file-processor)](https://github.com/ESousa97/go-file-processor/commits/main)
+
 </div>
 
 ---
@@ -22,6 +23,7 @@ O **Go File Processor** é uma ferramenta de linha de comando e biblioteca de al
 ## Demonstração
 
 ### Como Biblioteca
+
 Adicione transformadores e configure o pool de execução de forma fluida:
 
 ```go
@@ -36,6 +38,7 @@ metrics, err := proc.Process("input.csv", "output.json", config)
 ```
 
 ### Como CLI
+
 Execute processamentos massivos com métricas em tempo real:
 
 ```bash
@@ -43,6 +46,7 @@ Execute processamentos massivos com métricas em tempo real:
 ```
 
 Output:
+
 ```text
 [INFO] Iniciando processamento...
 [INFO] Progresso: 100000 linhas processadas
@@ -54,13 +58,13 @@ Output:
 
 ## Stack Tecnológico
 
-| Tecnologia | Papel |
-|------------|-------|
-| **Go 1.22+** | Linguagem principal com concorrência nativa de alta performance |
-| **Worker Pool** | Gerenciamento de paralelismo e controle de carga |
-| **slog** | Structured logging para observabilidade e rastreabilidade |
-| **Atomic Counters** | Coleta de métricas de alta performance sem contenção (lock-free) |
-| **Channels** | Comunicação segura e desacoplada entre Producer, Workers e Consumer |
+| Tecnologia          | Papel                                                               |
+| ------------------- | ------------------------------------------------------------------- |
+| **Go 1.22+**        | Linguagem principal com concorrência nativa de alta performance     |
+| **Worker Pool**     | Gerenciamento de paralelismo e controle de carga                    |
+| **slog**            | Structured logging para observabilidade e rastreabilidade           |
+| **Atomic Counters** | Coleta de métricas de alta performance sem contenção (lock-free)    |
+| **Channels**        | Comunicação segura e desacoplada entre Producer, Workers e Consumer |
 
 ## Pré-requisitos
 
@@ -88,13 +92,13 @@ make bench
 
 ## Makefile Targets
 
-| Target | Descrição |
-|--------|-----------|
-| `make build` | Compila o binário `fileproc` na raiz do projeto |
-| `make test` | Executa a suíte de testes unitários |
-| `make bench` | Roda comparativos de performance (Sequencial vs Paralelo) |
-| `make generate-data` | Gera arquivo de teste massivo (100.000 registros) |
-| `make clean` | Remove binários e arquivos temporários |
+| Target               | Descrição                                                 |
+| -------------------- | --------------------------------------------------------- |
+| `make build`         | Compila o binário `fileproc` na raiz do projeto           |
+| `make test`          | Executa a suíte de testes unitários                       |
+| `make bench`         | Roda comparativos de performance (Sequencial vs Paralelo) |
+| `make generate-data` | Gera arquivo de teste massivo (100.000 registros)         |
+| `make clean`         | Remove binários e arquivos temporários                    |
 
 ## Arquitetura
 
@@ -111,7 +115,7 @@ graph LR
     Transformers --> Results{Result Channel}
     Results --> Consumer[Consumer]
     Consumer --> Output[JSON Output]
-    
+
     subgraph "Worker Pool"
     W1
     W2
@@ -125,11 +129,11 @@ Documentação técnica detalhada disponível em [pkg.go.dev/github.com/ESousa97
 
 ## Configuração (CLI Flags)
 
-| Flag | Descrição | Tipo | Padrão |
-|------|-----------|------|---------|
-| `-input` | Caminho do arquivo CSV de entrada | `string` | `input.csv` |
-| `-output` | Caminho do arquivo JSON de saída | `string` | `output.json` |
-| `-workers` | Número de workers simultâneos | `int` | `4` |
+| Flag       | Descrição                         | Tipo     | Padrão        |
+| ---------- | --------------------------------- | -------- | ------------- |
+| `-input`   | Caminho do arquivo CSV de entrada | `string` | `input.csv`   |
+| `-output`  | Caminho do arquivo JSON de saída  | `string` | `output.json` |
+| `-workers` | Número de workers simultâneos     | `int`    | `4`           |
 
 ## Roadmap
 
@@ -139,7 +143,6 @@ Acompanhe as etapas de evolução do projeto:
 - [x] **Fase 2: Transformação** — Camada de Middleware (Chain of Responsibility).
 - [x] **Fase 3: Observabilidade** — Métricas atômicas e logs estruturados (`slog`).
 - [x] **Fase 4: Governança** — CI/CD, Documentação profissional e Badges.
-- [ ] **Fase 5: Extensibilidade** — Suporte a outros formatos (XML, Parquet).
 
 ## Contribuindo
 
