@@ -35,16 +35,20 @@ id,name,email,role
 2,Regular Joe,joe@example.com,editor
 ```
 
-Exemplo de saída (`data/output.json`):
-```json
-[
-  {
-    "id": "1",
-    "name": "Admin User",
-    "email": "admin@example.com",
-    "role": "administrator"
-  }
-]
+```
+
+### Camada de Transformação (Middleware)
+O sistema agora suporta transformações em cadeia, permitindo filtrar e modificar dados antes da exportação:
+
+```go
+config := processor.Config{
+    WorkerCount: 5,
+    Transformers: []processor.Transformer{
+        processor.EmailFilter(`^[a-z0-0._%+\-]+@[a-z0-0.\-]+\.[a-z]{2,4}$`), // Filtro Regex
+        processor.RoleFilter([]string{"administrator", "editor"}),          // Filtro de Permissões
+        processor.FieldMasker("role"),                                      // Mascaramento Sensível
+    },
+}
 ```
 
 ## Stack Tecnológico
@@ -98,7 +102,8 @@ graph LR
 - [x] **Fase 1: Estrutura Base** — Interface Processor e conversor CSV/JSON básico.
 - [x] **Fase 2: Concorrência** — Implementação de Worker Pool e Canais.
 - [x] **Fase 3: Streaming Otimizado** — Uso de bufio e encoders incrementais.
-- [ ] **Fase 4: Resiliência** — Tratamento de erros avançado e logs estruturados.
+- [x] **Fase 4: Camada de Transformação** — Implementação de Middleware e Chain of Responsibility.
+- [ ] **Fase 5: Resiliência** — Tratamento de erros avançado e logs estruturados.
 
 ## Contribuindo
 

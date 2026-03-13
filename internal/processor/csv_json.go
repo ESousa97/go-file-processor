@@ -21,26 +21,54 @@ func NewCSVToJSONProcessor() *CSVToJSONProcessor {
 
 // Process executes the full pipeline using a Worker Pool and streaming.
 func (p *CSVToJSONProcessor) Process(source, destination string, config Config) error {
-	// 1. Open source file
-	srcFile, err := os.Open(source)
+	srcFile, dstFile, reader, headerMap, err := p.setupFiles(source, destination)
 	if err != nil {
-		return fmt.Errorf("could not open source file: %w", err)
+		return err
 	}
 	defer srcFile.Close()
-
-	// 2. Open destination file
-	dstFile, err := os.Create(destination)
-	if err != nil {
-		return fmt.Errorf("could not create destination file: %w", err)
-	}
 	defer dstFile.Close()
 
+	jobs := make(chan []string, 100)
+	results := make(chan domain.User, 100)
+	errChan := make(chan error, 1)
+	done := make(chan bool)
+
+	var wg sync.WaitGroup
+
+	p.startWorkers(&wg, config, jobs, results, headerMap)
+	go p.runConsumer(results, dstFile, done)
+	go p.runProducer(reader, jobs, errChan)
+
+	wg.Wait()
+	close(results)
+	<-done
+
+	select {
+	case err := <-errChan:
+		return err
+	default:
+		return nil
+	}
+}
+
+func (p *CSVToJSONProcessor) setupFiles(source, destination string) (*os.File, *os.File, *csv.Reader, map[string]int, error) {
+	srcFile, err := os.Open(source)
+	if err != nil {
+		return nil, nil, nil, nil, fmt.Errorf("could not open source file: %w", err)
+	}
+
+	dstFile, err := os.Create(destination)
+	if err != nil {
+		srcFile.Close()
+		return nil, nil, nil, nil, fmt.Errorf("could not create destination file: %w", err)
+	}
+
 	reader := csv.NewReader(srcFile)
-	
-	// Read headers first
 	headers, err := reader.Read()
 	if err != nil {
-		return fmt.Errorf("could not read csv headers: %w", err)
+		srcFile.Close()
+		dstFile.Close()
+		return nil, nil, nil, nil, fmt.Errorf("could not read csv headers: %w", err)
 	}
 
 	headerMap := make(map[string]int)
@@ -48,14 +76,10 @@ func (p *CSVToJSONProcessor) Process(source, destination string, config Config) 
 		headerMap[h] = i
 	}
 
-	// Channels for Worker Pool
-	jobs := make(chan []string, 100)
-	results := make(chan domain.User, 100)
-	errChan := make(chan error, 1)
+	return srcFile, dstFile, reader, headerMap, nil
+}
 
-	var wg sync.WaitGroup
-
-	// Start Workers
+func (p *CSVToJSONProcessor) startWorkers(wg *sync.WaitGroup, config Config, jobs <-chan []string, results chan<- domain.User, headerMap map[string]int) {
 	for i := 0; i < config.WorkerCount; i++ {
 		wg.Add(1)
 		go func() {
@@ -68,76 +92,57 @@ func (p *CSVToJSONProcessor) Process(source, destination string, config Config) 
 					Role:  p.getValue(row, headerMap, "role"),
 				}
 
-				// Apply Transformations (Middleware Chain)
-				keep := true
-				for _, transform := range config.Transformers {
-					if !transform(&user) {
-						keep = false
-						break
-					}
-				}
-
-				if keep {
+				if p.applyTransformers(&user, config.Transformers) {
 					results <- user
 				}
 			}
 		}()
 	}
+}
 
-	// Start Consumer (Writer)
-	done := make(chan bool)
-	go func() {
-		defer func() { done <- true }()
-		
-		dstFile.WriteString("[\n")
-		encoder := json.NewEncoder(dstFile)
-		encoder.SetIndent("  ", "  ")
-		
-		first := true
-		for user := range results {
-			if !first {
-				dstFile.WriteString(",\n")
-			}
-			encoder.Encode(user)
-			first = false
+func (p *CSVToJSONProcessor) applyTransformers(user *domain.User, transformers []Transformer) bool {
+	for _, transform := range transformers {
+		if !transform(user) {
+			return false
 		}
-		dstFile.WriteString("\n]")
-	}()
-
-	// Producer: Read CSV rows and send to jobs channel
-	go func() {
-		defer close(jobs)
-		for {
-			row, err := reader.Read()
-			if err == io.EOF {
-				break
-			}
-			if err != nil {
-				select {
-				case errChan <- fmt.Errorf("error reading csv row: %w", err):
-				default:
-				}
-				return
-			}
-			jobs <- row
-		}
-	}()
-
-	// Wait for workers to finish
-	wg.Wait()
-	close(results)
-
-	// Wait for consumer to finish
-	<-done
-
-	// Check for producer errors
-	select {
-	case err := <-errChan:
-		return err
-	default:
 	}
+	return true
+}
 
-	return nil
+func (p *CSVToJSONProcessor) runConsumer(results <-chan domain.User, dstFile *os.File, done chan<- bool) {
+	defer func() { done <- true }()
+
+	dstFile.WriteString("[\n")
+	encoder := json.NewEncoder(dstFile)
+	encoder.SetIndent("  ", "  ")
+
+	first := true
+	for user := range results {
+		if !first {
+			dstFile.WriteString(",\n")
+		}
+		encoder.Encode(user)
+		first = false
+	}
+	dstFile.WriteString("\n]")
+}
+
+func (p *CSVToJSONProcessor) runProducer(reader *csv.Reader, jobs chan<- []string, errChan chan<- error) {
+	defer close(jobs)
+	for {
+		row, err := reader.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			select {
+			case errChan <- fmt.Errorf("error reading csv row: %w", err):
+			default:
+			}
+			return
+		}
+		jobs <- row
+	}
 }
 
 // getValue is a helper to safely retrieve column values by header name.
