@@ -1,14 +1,19 @@
-# Go File Processor
+<div align="center">
+  <h1>Go File Processor</h1>
+  <p>Processamento paralelo e resiliente de arquivos massivos com Worker Pool em Go.</p>
 
-> Processamento paralelo e resiliente de arquivos massivos com Worker Pool em Go.
+  <img src="assets/github-go.png" alt="Go File Processor Banner" width="600px">
 
-[![CI](https://github.com/ESousa97/go-file-processor/actions/workflows/ci.yml/badge.svg)](https://github.com/ESousa97/go-file-processor/actions)
-[![Go Report Card](https://goreportcard.com/badge/github.com/ESousa97/go-file-processor)](https://goreportcard.com/report/github.com/ESousa97/go-file-processor)
-[![CodeFactor](https://www.codefactor.io/repository/github/ESousa97/go-file-processor/badge)](https://www.codefactor.io/repository/github/ESousa97/go-file-processor)
-[![Go Reference](https://pkg.go.dev/badge/github.com/ESousa97/go-file-processor.svg)](https://pkg.go.dev/github.com/ESousa97/go-file-processor)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Go Version](https://img.shields.io/github/go-mod/go-version/ESousa97/go-file-processor)](https://github.com/ESousa97/go-file-processor)
-[![Last Commit](https://img.shields.io/github/last-commit/ESousa97/go-file-processor)](https://github.com/ESousa97/go-file-processor/commits/main)
+  <br>
+
+  [![CI](https://github.com/ESousa97/go-file-processor/actions/workflows/ci.yml/badge.svg)](https://github.com/ESousa97/go-file-processor/actions)
+  [![Go Report Card](https://goreportcard.com/badge/github.com/ESousa97/go-file-processor)](https://goreportcard.com/report/github.com/ESousa97/go-file-processor)
+  [![CodeFactor](https://www.codefactor.io/repository/github/ESousa97/go-file-processor/badge)](https://www.codefactor.io/repository/github/ESousa97/go-file-processor)
+  [![Go Reference](https://pkg.go.dev/badge/github.com/ESousa97/go-file-processor.svg)](https://pkg.go.dev/github.com/ESousa97/go-file-processor)
+  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+  [![Go Version](https://img.shields.io/github/go-mod/go-version/ESousa97/go-file-processor)](https://github.com/ESousa97/go-file-processor)
+  [![Last Commit](https://img.shields.io/github/last-commit/ESousa97/go-file-processor)](https://github.com/ESousa97/go-file-processor/commits/main)
+</div>
 
 ---
 
@@ -17,6 +22,7 @@ O **Go File Processor** é uma ferramenta de linha de comando e biblioteca de al
 ## Demonstração
 
 ### Como Biblioteca
+Adicione transformadores e configure o pool de execução de forma fluida:
 
 ```go
 proc := processor.NewCSVToJSONProcessor()
@@ -29,8 +35,14 @@ config.AddTransformer(processor.FieldMasker("email"))
 metrics, err := proc.Process("input.csv", "output.json", config)
 ```
 
-### Como CLI (Output)
+### Como CLI
+Execute processamentos massivos com métricas em tempo real:
 
+```bash
+./fileproc -input data.csv -output data.json -workers 4
+```
+
+Output:
 ```text
 [INFO] Iniciando processamento...
 [INFO] Progresso: 100000 linhas processadas
@@ -42,18 +54,18 @@ metrics, err := proc.Process("input.csv", "output.json", config)
 
 ## Stack Tecnológico
 
-| Tecnologia          | Papel                                             |
-| ------------------- | ------------------------------------------------- |
-| **Go**              | Linguagem principal (Concorrência nativa)         |
-| **Worker Pool**     | Gerenciamento de paralelismo e carga              |
-| **slog**            | Structured logging para observabilidade           |
-| **Atomic Counters** | Coleta de métricas sem lock                       |
-| **Channels**        | Comunicação segura entre Producer/Worker/Consumer |
+| Tecnologia | Papel |
+|------------|-------|
+| **Go 1.22+** | Linguagem principal com concorrência nativa de alta performance |
+| **Worker Pool** | Gerenciamento de paralelismo e controle de carga |
+| **slog** | Structured logging para observabilidade e rastreabilidade |
+| **Atomic Counters** | Coleta de métricas de alta performance sem contenção (lock-free) |
+| **Channels** | Comunicação segura e desacoplada entre Producer, Workers e Consumer |
 
 ## Pré-requisitos
 
-- Go >= 1.22
-- Make (opcional, para automação)
+- **Go >= 1.22**
+- **Make** (para automação de build e benchmarks)
 
 ## Instalação e Uso
 
@@ -63,12 +75,11 @@ metrics, err := proc.Process("input.csv", "output.json", config)
 git clone https://github.com/ESousa97/go-file-processor.git
 cd go-file-processor
 make build
-./fileproc -input data.csv -output data.json -workers 4
 ```
 
-### Geração de Dados de Teste
+### Geração de Dados e Benchmark
 
-Para testar performance com arquivos gigantes (100k+ linhas):
+Para validar a performance com arquivos de 100k+ linhas:
 
 ```bash
 make generate-data
@@ -77,53 +88,81 @@ make bench
 
 ## Makefile Targets
 
-| Target          | Descrição                                           |
-| --------------- | --------------------------------------------------- |
-| `build`         | Compila o binário `fileproc` na raiz do projeto     |
-| `test`          | Executa todos os testes unitários                   |
-| `bench`         | Roda a suíte de benchmarks (Sequencial vs Paralelo) |
-| `generate-data` | Gera arquivo `large_test.csv` com 100.000 registros |
-| `clean`         | Remove binários e arquivos temporários de teste     |
+| Target | Descrição |
+|--------|-----------|
+| `make build` | Compila o binário `fileproc` na raiz do projeto |
+| `make test` | Executa a suíte de testes unitários |
+| `make bench` | Roda comparativos de performance (Sequencial vs Paralelo) |
+| `make generate-data` | Gera arquivo de teste massivo (100.000 registros) |
+| `make clean` | Remove binários e arquivos temporários |
 
 ## Arquitetura
 
-O projeto segue uma arquitetura modular focada em streaming de dados:
+O projeto utiliza um modelo de streaming baseado em canais para processar dados sem carregar o arquivo inteiro na memória.
 
-1.  **Producer**: Lê o arquivo CSV linha a linha (bufio) e despacha para o canal de jobs.
-2.  **Worker Pool**: Conjunto de goroutines que consomem os jobs, aplicam transformações e validam tipos.
-3.  **Consumer**: Coleta os resultados processados e serializa o JSON final via streaming.
-4.  **Transformation Layer**: Padrão Middleware que permite injetar lógica de filtro e alteração em tempo de execução.
+```mermaid
+graph LR
+    Input[CSV Input] --> Producer[Producer]
+    Producer --> Jobs{Job Channel}
+    Jobs --> W1[Worker 1]
+    Jobs --> W2[Worker 2]
+    Jobs --> WN[Worker N]
+    W1 & W2 & WN --> Transformers[Transformation Layer]
+    Transformers --> Results{Result Channel}
+    Results --> Consumer[Consumer]
+    Consumer --> Output[JSON Output]
+    
+    subgraph "Worker Pool"
+    W1
+    W2
+    WN
+    end
+```
 
 ## API Reference
 
-Veja a documentação completa e exemplos em [pkg.go.dev](https://pkg.go.dev/github.com/ESousa97/go-file-processor).
+Documentação técnica detalhada disponível em [pkg.go.dev/github.com/ESousa97/go-file-processor](https://pkg.go.dev/github.com/ESousa97/go-file-processor).
 
 ## Configuração (CLI Flags)
 
-| Flag       | Descrição                         | Tipo   | Padrão        |
-| ---------- | --------------------------------- | ------ | ------------- |
-| `-input`   | Caminho do arquivo CSV de entrada | string | `input.csv`   |
-| `-output`  | Caminho do arquivo JSON de saída  | string | `output.json` |
-| `-workers` | Número de workers simultâneos     | int    | `4`           |
+| Flag | Descrição | Tipo | Padrão |
+|------|-----------|------|---------|
+| `-input` | Caminho do arquivo CSV de entrada | `string` | `input.csv` |
+| `-output` | Caminho do arquivo JSON de saída | `string` | `output.json` |
+| `-workers` | Número de workers simultâneos | `int` | `4` |
 
 ## Roadmap
 
-- [x] Implementação core (Worker Pool)
-- [x] Camada de Transformação (Middleware)
-- [x] Sistema de Métricas e Logs Estruturados
-- [x] Benchmarking e Otimização
+Acompanhe as etapas de evolução do projeto:
+
+- [x] **Fase 1: Fundação** — Implementação do Worker Pool e streaming core.
+- [x] **Fase 2: Transformação** — Camada de Middleware (Chain of Responsibility).
+- [x] **Fase 3: Observabilidade** — Métricas atômicas e logs estruturados (`slog`).
+- [x] **Fase 4: Governança** — CI/CD, Documentação profissional e Badges.
+- [ ] **Fase 5: Extensibilidade** — Suporte a outros formatos (XML, Parquet).
 
 ## Contribuindo
 
-Contribuições são bem-vindas! Veja o [CONTRIBUTING.md](CONTRIBUTING.md) para detalhes sobre nosso processo de desenvolvimento.
+Interessado em colaborar? Veja nosso [CONTRIBUTING.md](CONTRIBUTING.md) para padrões de código e processo de PR.
 
 ## Licença
 
-Distribuído sob a licença MIT. Veja `LICENSE` para mais informações.
+Este projeto está licenciado sob a **MIT License** — veja o arquivo [LICENSE](LICENSE) para detalhes.
+
+<div align="center">
 
 ## Autor
 
 **Enoque Sousa**
 
-- [Portfólio](https://enoquesousa.vercel.app)
-- [GitHub](https://github.com/ESousa97)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=flat&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/enoque-sousa-bb89aa168/)
+[![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white)](https://github.com/ESousa97)
+[![Portfolio](https://img.shields.io/badge/Portfolio-FF5722?style=flat&logo=target&logoColor=white)](https://enoquesousa.vercel.app)
+
+**[⬆ Voltar ao topo](#go-file-processor)**
+
+Feito com ❤️ por [Enoque Sousa](https://github.com/ESousa97)
+
+**Status do Projeto:** Ativo — Em constante atualização
+
+</div>
