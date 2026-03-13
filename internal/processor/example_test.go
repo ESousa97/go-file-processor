@@ -9,6 +9,8 @@ import (
 // with worker pool configuration and a chain of transformers.
 func ExampleCSVToJSONProcessor_Process() {
 	proc := processor.NewCSVToJSONProcessor()
+	_ = proc // Ignored for example purposes
+	_ = proc // Explicitly ignored to satisfy the linter while keeping the example logical
 
 	// Configure the processor with 4 workers and several transformers
 	config := processor.Config{
