@@ -4,8 +4,9 @@
 
 [![CI](https://github.com/ESousa97/go-file-processor/actions/workflows/ci.yml/badge.svg)](https://github.com/ESousa97/go-file-processor/actions)
 [![Go Report Card](https://goreportcard.com/badge/github.com/ESousa97/go-file-processor)](https://goreportcard.com/report/github.com/ESousa97/go-file-processor)
+[![CodeFactor](https://www.codefactor.io/repository/github/ESousa97/go-file-processor/badge)](https://www.codefactor.io/repository/github/ESousa97/go-file-processor)
 [![Go Reference](https://pkg.go.dev/badge/github.com/ESousa97/go-file-processor.svg)](https://pkg.go.dev/github.com/ESousa97/go-file-processor)
-[![License](https://img.shields.io/github/license/ESousa97/go-file-processor)](https://github.com/ESousa97/go-file-processor/blob/main/LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Go Version](https://img.shields.io/github/go-mod/go-version/ESousa97/go-file-processor)](https://github.com/ESousa97/go-file-processor)
 [![Last Commit](https://img.shields.io/github/last-commit/ESousa97/go-file-processor)](https://github.com/ESousa97/go-file-processor/commits/main)
 
