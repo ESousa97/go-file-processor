@@ -84,6 +84,30 @@ go build -o processor ./cmd/main.go
 ./processor
 ```
 
+
+## Automação e Benchmarking
+
+O projeto conta com um `Makefile` para facilitar o desenvolvimento e testes de performance.
+
+### Comandos Disponíveis (Make)
+```bash
+make build          # Compila o projeto
+make test           # Executa testes unitários
+make bench          # Executa a suíte de benchmarks
+make generate-data  # Gera 100k registros de teste
+make clean          # Remove arquivos gerados
+```
+
+### Comandos Manuais (Alternativa sem Make)
+Caso o comando `make` não esteja disponível:
+```bash
+# Gerar dados
+go run /tmp/gen_data.go data/large_test.csv 100000
+
+# Rodar Benchmarks
+go test -bench=. -benchmem ./internal/processor/...
+```
+
 ## Arquitetura
 
 O projeto utiliza um pipeline concorrente para maximizar o throughput sem comprometer a estabilidade do sistema.
