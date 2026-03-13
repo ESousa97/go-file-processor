@@ -5,11 +5,13 @@ import (
 	"regexp"
 )
 
-// Transformer defines a function that modifies a User or returns false to filter it out.
-// Following the Middleware/Chain of Responsibility pattern.
+// Transformer defines a function signature for modifying a [domain.User] record.
+// It returns true if the record should be kept, or false to filter it out.
+// This implements the Middleware/Chain of Responsibility pattern.
 type Transformer func(user *domain.User) bool
 
-// EmailFilter returns a transformer that filters users with invalid emails based on regex.
+// EmailFilter returns a [Transformer] that validates the user's email against a regex pattern.
+// Records with emails that do not match the pattern are filtered out.
 func EmailFilter(pattern string) Transformer {
 	re := regexp.MustCompile(pattern)
 	return func(user *domain.User) bool {
@@ -17,7 +19,8 @@ func EmailFilter(pattern string) Transformer {
 	}
 }
 
-// FieldMasker returns a transformer that masks specific fields.
+// FieldMasker returns a [Transformer] that obscures the content of specified fields
+// for data privacy (e.g., masking emails or roles).
 func FieldMasker(field string) Transformer {
 	return func(user *domain.User) bool {
 		switch field {
@@ -30,7 +33,8 @@ func FieldMasker(field string) Transformer {
 	}
 }
 
-// RoleFilter returns a transformer that only allows specific roles.
+// RoleFilter returns a [Transformer] that only allows users with roles
+// specified in the allowedRoles slice.
 func RoleFilter(allowedRoles []string) Transformer {
 	roles := make(map[string]struct{})
 	for _, r := range allowedRoles {

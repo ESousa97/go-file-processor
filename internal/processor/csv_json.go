@@ -14,15 +14,19 @@ import (
 	"go-file-processor/internal/domain"
 )
 
-// CSVToJSONProcessor implements the Processor interface for CSV to JSON conversion.
+// CSVToJSONProcessor implements the [Processor] interface for converting CSV files to JSON.
+// It utilizes a Worker Pool pattern to process rows concurrently, ensuring high performance
+// and low memory footprint even for massive datasets.
 type CSVToJSONProcessor struct{}
 
-// NewCSVToJSONProcessor creates a new instance of CSVToJSONProcessor.
+// NewCSVToJSONProcessor creates and returns a new instance of [CSVToJSONProcessor].
 func NewCSVToJSONProcessor() *CSVToJSONProcessor {
 	return &CSVToJSONProcessor{}
 }
 
-// Process executes the full pipeline using a Worker Pool and streaming.
+// Process executes the full CSV-to-JSON transformation pipeline.
+// It handles file I/O, concurrent processing via workers, and result streaming to a JSON array.
+// It returns [ProcessMetrics] containing statistics about lines processed, successes, and errors.
 func (p *CSVToJSONProcessor) Process(source, destination string, config Config) (ProcessMetrics, error) {
 	start := time.Now()
 	metrics := ProcessMetrics{}
