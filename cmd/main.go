@@ -2,21 +2,29 @@ package main
 
 import (
 	"fmt"
-	"log"
+	"log/slog"
 	"os"
 	"path/filepath"
+	"time"
 
 	"go-file-processor/internal/processor"
 )
 
 func main() {
+	// Setup Structured Logging
+	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelInfo,
+	}))
+	slog.SetDefault(logger)
+
 	// Setup paths
 	inputPath := "data/users_large.csv"
 	outputPath := "data/output.json"
 
 	// Ensure data directory exists
 	if err := os.MkdirAll(filepath.Dir(inputPath), 0755); err != nil {
-		log.Fatalf("Error creating data directory: %v", err)
+		slog.Error("Error creating data directory", "error", err)
+		os.Exit(1)
 	}
 
 	// Create a dummy CSV if it doesn't exist for test purposes
@@ -36,13 +44,21 @@ func main() {
 	csvProcessor := processor.NewCSVToJSONProcessor()
 
 	// Execute Pipeline
-	fmt.Printf("Processing %s with %d workers and transformations...\n", inputPath, config.WorkerCount)
+	slog.Info("Starting file processing", "input", inputPath, "workers", config.WorkerCount)
 
-	if err := csvProcessor.Process(inputPath, outputPath, config); err != nil {
-		log.Fatalf("Processing Error: %v", err)
+	metrics, err := csvProcessor.Process(inputPath, outputPath, config)
+	if err != nil {
+		slog.Error("Critical processing error", "error", err)
+		os.Exit(1)
 	}
 
-	fmt.Printf("Success! Output written to %s\n", outputPath)
+	// Display Execution Summary
+	fmt.Printf("\n--- RESUMO DE EXECUÇÃO ---\n")
+	fmt.Printf("Total de linhas lidas: %d\n", metrics.TotalLines)
+	fmt.Printf("Processadas com sucesso: %d\n", metrics.SuccessCount)
+	fmt.Printf("Linhas com erro/ignoradas: %d\n", metrics.ErrorCount)
+	fmt.Printf("Tempo total: %s\n", metrics.Duration.Round(time.Millisecond))
+	fmt.Printf("--------------------------\n")
 }
 
 func createSampleCSV(path string) {
@@ -54,6 +70,6 @@ func createSampleCSV(path string) {
 		"4,Bob Smith,bob@example.com,editor\n"          // Should stay (but role will be masked)
 	err := os.WriteFile(path, []byte(content), 0644)
 	if err != nil {
-		log.Printf("Warning: could not create sample csv: %v", err)
+		slog.Warn("Warning: could not create sample csv", "error", err)
 	}
 }

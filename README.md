@@ -51,7 +51,15 @@ config := processor.Config{
 }
 ```
 
-## Stack Tecnológico
+```
+
+### Logs e Métricas (slog)
+O processador utiliza a biblioteca `slog` para logs estruturados e fornece métricas detalhadas ao final da execução:
+
+- **Total de linhas**: Quantidade de registros lidos.
+- **Sucesso**: Registros processados e gravados.
+- **Erros**: Linhas inválidas ou falhas de encoding.
+- **Resiliência**: O processamento não interrompe ao encontrar linhas corrompidas.
 
 | Tecnologia | Papel |
 |------------|-------|
@@ -103,7 +111,7 @@ graph LR
 - [x] **Fase 2: Concorrência** — Implementação de Worker Pool e Canais.
 - [x] **Fase 3: Streaming Otimizado** — Uso de bufio e encoders incrementais.
 - [x] **Fase 4: Camada de Transformação** — Implementação de Middleware e Chain of Responsibility.
-- [ ] **Fase 5: Resiliência** — Tratamento de erros avançado e logs estruturados.
+- [x] **Fase 5: Resiliência** — Tratamento de erros avançado e logs estruturados.
 
 ## Contribuindo
 
