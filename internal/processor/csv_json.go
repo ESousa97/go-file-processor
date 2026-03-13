@@ -40,7 +40,7 @@ func (p *CSVToJSONProcessor) Process(source, destination string, config Config) 
 
 	var wg sync.WaitGroup
 
-	p.startWorkers(&wg, config, jobs, results, headerMap, &metrics)
+	p.startWorkers(&wg, config, jobs, results, headerMap)
 	go p.runConsumer(results, dstFile, done, &metrics)
 	go p.runProducer(reader, jobs, &metrics)
 
@@ -83,7 +83,7 @@ func (p *CSVToJSONProcessor) setupFiles(source, destination string) (*os.File, *
 	return srcFile, dstFile, reader, headerMap, nil
 }
 
-func (p *CSVToJSONProcessor) startWorkers(wg *sync.WaitGroup, config Config, jobs <-chan []string, results chan<- domain.User, headerMap map[string]int, metrics *ProcessMetrics) {
+func (p *CSVToJSONProcessor) startWorkers(wg *sync.WaitGroup, config Config, jobs <-chan []string, results chan<- domain.User, headerMap map[string]int) {
 	for i := 0; i < config.WorkerCount; i++ {
 		wg.Add(1)
 		go func() {

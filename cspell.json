@@ -1,0 +1,34 @@
+{
+  "version": "0.2",
+  "language": "en,pt-br",
+  "words": [
+    "slog",
+    "Gopls",
+    "Lucide",
+    "Goreportcard",
+    "CodeFactor",
+    "Vercel",
+    "Enoque",
+    "Sousa",
+    "waitgroups",
+    "unusedparams",
+    "cspell",
+    "ETL",
+    "throughput",
+    "bufio",
+    "goroutines",
+    "stateless",
+    "tokenizados",
+    "semânticos",
+    "estilização",
+    "atômicos"
+  ],
+  "ignorePaths": [
+    "cspell.json",
+    ".git"
+  ],
+  "dictionaries": [
+    "en_US",
+    "pt-br"
+  ]
+}
