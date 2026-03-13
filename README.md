@@ -102,7 +102,7 @@ make clean          # Remove arquivos gerados
 Caso o comando `make` não esteja disponível:
 ```bash
 # Gerar dados
-go run /tmp/gen_data.go data/large_test.csv 100000
+go run scripts/gen_data.go data/large_test.csv 100000
 
 # Rodar Benchmarks
 go test -bench=. -benchmem ./internal/processor/...

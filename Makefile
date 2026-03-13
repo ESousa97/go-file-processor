@@ -16,7 +16,7 @@ bench:
 
 generate-data:
 	mkdir -p $(DATA_DIR)
-	go run /tmp/gen_data.go $(LARGE_CSV) 100000
+	go run scripts/gen_data.go $(LARGE_CSV) 100000
 
 clean:
 	rm -f $(BINARY_NAME)
