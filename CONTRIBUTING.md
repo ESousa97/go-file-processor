@@ -1,29 +1,18 @@
-# Contributing to Go File Processor
+# Contributing (Archived Project)
 
-Thank you for your interest in contributing! This project follows rigorous standards for quality and concurrency in Go.
+Thank you for your interest! This project is currently **archived** and no longer accepting new features or active maintenance.
 
-## Development Setup
+## Project Purpose
+The **Go File Processor** was created as a second learning project to explore Go's concurrency and streaming I/O. It remains available as a historical reference for:
+- Worker Pool implementations.
+- Channel-based pipelines.
+- Middleware design patterns in Go.
 
-1.  **Requirements**: Go 1.22+ and `make`.
-2.  **Clone**: `git clone https://github.com/ESousa97/go-file-processor.git`.
-3.  **Tests**: Use `make test` to ensure everything is OK.
+## Exploring the Code
+You are welcome to fork this project to use as a template or to experiment with its features. Key areas of interest:
+- `internal/processor/csv_json.go`: The core engine using Worker Pools.
+- `internal/processor/transformer.go`: The implementation of the Middleware pattern.
+- `internal/processor/csv_json_bench_test.go`: Benchmarking logic to compare performance.
 
-## Code Conventions
-
-- Follow [Effective Go](https://golang.org/doc/effective_go.html).
-- Run `go fmt` before each commit.
-- All exported items must have professional Godoc comments in English.
-- Maintain extreme modularization: each file with a single responsibility.
-
-## Pull Request Process
-
-1.  Create a descriptive branch (`feature/`, `fix/`, `perf/`).
-2.  Ensure benchmarks haven't regressed via `make bench`.
-3.  Update `CHANGELOG.md` in the `[Unreleased]` section.
-4.  Request a code review.
-
-## Areas for Contribution
-
-- Support for new formats (XML, Avro).
-- Consumer optimization to further reduce serialization overhead.
-- CLI improvements (e.g., more detailed progress bar).
+## License
+The project remains under the **MIT License**, allowing you to use and modify it for your own purposes.

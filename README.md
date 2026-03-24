@@ -12,25 +12,36 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/ESousa97/go-file-processor.svg)](https://pkg.go.dev/github.com/ESousa97/go-file-processor)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Go Version](https://img.shields.io/github/go-mod/go-version/ESousa97/go-file-processor)](https://github.com/ESousa97/go-file-processor)
-[![Last Commit](https://img.shields.io/github/last-commit/ESousa97/go-file-processor)](https://github.com/ESousa97/go-file-processor/commits/main)
+[![Last Commit](https://img.shields.io/github/last-commit/ESousa97/go-file-processor)](https://github.com/ESousa97/go-file-processor)
 
 </div>
 
 ---
 
-**Go File Processor** is a high-performance command-line tool and library designed to efficiently convert massive CSV files (millions of records) into structured JSON. Using the Worker Pool pattern and channel-based processing, it ensures optimized CPU usage and constant memory consumption, regardless of the input file size.
+> **Note: Archival Project**  
+> This was my second major project in Go, built as a deep dive into the language's idiomatic concurrency patterns and high-performance I/O. It is now archived but serves as a solid reference for ETL (Extract, Transform, Load) implementations in Golang.
+
+**Go File Processor** is a high-performance command-line tool and library designed to efficiently convert massive CSV files (millions of records) into structured JSON. It demonstrates the power of Go's concurrency primitives to achieve maximum throughput with minimal memory overhead.
+
+## 🚀 Core Learning Objectives
+
+This project was a hands-on laboratory to master several Go concepts:
+
+*   **Concurrency via Worker Pool:** Leveraging `goroutines` and `channels` to process data in parallel without overwhelming the system.
+*   **Memory Efficiency (Streaming):** Using `io.Reader` and `io.Writer` to process gigabytes of data with a constant, tiny memory footprint.
+*   **The Middleware Pattern:** Implementing a "Chain of Responsibility" for data transformation that is both flexible and type-safe.
+*   **Atomic Operations:** Using `sync/atomic` for high-speed metrics tracking, avoiding the overhead of mutexes.
+*   **Idiomatic Project Layout:** Following standard Go folder structures (`cmd/`, `internal/`) and build automation with `Makefile`.
 
 ## Demonstration
 
 ### As a Library
 
-Add transformers and configure the execution pool fluently:
-
 ```go
 proc := processor.NewCSVToJSONProcessor()
 config := processor.Config{WorkerCount: 8}
 
-// Add transformers (Chain of Responsibility)
+// Fluent transformation chain
 config.AddTransformer(processor.EmailFilter(`@company.com$`))
 config.AddTransformer(processor.FieldMasker("email"))
 
@@ -39,118 +50,39 @@ metrics, err := proc.Process("input.csv", "output.json", config)
 
 ### As a CLI
 
-Run massive processing with real-time metrics:
-
 ```bash
 ./fileproc -input data.csv -output data.json -workers 4
 ```
 
-Output:
+## Tech Stack & Architecture
 
-```text
-[INFO] Starting processing...
-[INFO] Progress: 100000 rows processed
-[SUMMARY] EXECUTION COMPLETED IN 1.2s
-- Total lines read: 100000
-- Successfully processed: 98500
-- Errors/Ignored: 1500
-```
-
-## Tech Stack
-
-| Technology          | Role                                                                |
+| Technology          | What I Learned                                                      |
 | ------------------- | ------------------------------------------------------------------- |
-| **Go 1.22+**        | Core language with high-performance native concurrency              |
-| **Worker Pool**     | Parallelism management and load control                             |
-| **slog**            | Structured logging for observability and traceability               |
-| **Atomic Counters** | High-performance metrics collection without contention (lock-free)  |
-| **Channels**        | Secure and decoupled communication between Producer, Workers, and Consumer |
+| **Worker Pool**     | How to orchestrate multiple goroutines for parallel work.           |
+| **Channels**        | Managing safe communication and backpressure between stages.        |
+| **Streaming I/O**   | Processing files record-by-record instead of loading to RAM.        |
+| **Atomic Counters** | Implementing thread-safe counters with maximum performance.         |
+| **Structured Logs** | Using `slog` for modern, machine-readable observability.            |
 
-## Prerequisites
+### Pipeline Flow
 
-- **Go >= 1.22**
-- **Make** (for build automation and benchmarks)
-
-## Installation and Usage
-
-### From Source
-
-```bash
-git clone https://github.com/ESousa97/go-file-processor.git
-cd go-file-processor
-make build
-```
-
-### Data Generation and Benchmark
-
-To validate performance with 100k+ row files:
-
-```bash
-make generate-data
-make bench
-```
+The system uses a streaming model to maintain low memory usage:
+`Input CSV -> Producer -> Job Channel -> [Workers + Transformers] -> Result Channel -> Consumer -> Output JSON`
 
 ## Makefile Targets
 
 | Target               | Description                                               |
 | -------------------- | --------------------------------------------------------- |
-| `make build`         | Compiles the `fileproc` binary at the project root        |
-| `make test`          | Runs the unit test suite                                  |
-| `make bench`         | Runs performance comparisons (Sequential vs Parallel)     |
-| `make generate-data` | Generates a massive test file (100,000 records)           |
-| `make clean`         | Removes binaries and temporary files                      |
+| `make build`         | Compiles the `fileproc` binary.                           |
+| `make test`          | Runs the full unit test suite.                            |
+| `make bench`         | Runs benchmarks to see the speed of Parallel vs Sequential. |
+| `make generate-data` | Generates a 100k row test file for performance testing.   |
 
-## Architecture
+## 📚 Final Thoughts
 
-The project uses a channel-based streaming model to process data without loading the entire file into memory.
+Building this project taught me that Go isn't just about syntax; it's about a philosophy of simplicity and performance. The transition from sequential processing to a parallel worker pool showed me how Go empowers developers to build tools that scale effortlessly.
 
-```mermaid
-graph LR
-    Input[CSV Input] --> Producer[Producer]
-    Producer --> Jobs{Job Channel}
-    Jobs --> W1[Worker 1]
-    Jobs --> W2[Worker 2]
-    Jobs --> WN[Worker N]
-    W1 & W2 & WN --> Transformers[Transformation Layer]
-    Transformers --> Results{Result Channel}
-    Results --> Consumer[Consumer]
-    Consumer --> Output[JSON Output]
-
-    subgraph "Worker Pool"
-    W1
-    W2
-    WN
-    end
-```
-
-## API Reference
-
-Detailed technical documentation available at [pkg.go.dev/github.com/ESousa97/go-file-processor](https://pkg.go.dev/github.com/ESousa97/go-file-processor).
-
-## Configuration (CLI Flags)
-
-| Flag       | Description                       | Type     | Default       |
-| ---------- | --------------------------------- | -------- | ------------- |
-| `-input`   | Input CSV file path               | `string` | `input.csv`   |
-| `-output`  | Output JSON file path             | `string` | `output.json` |
-| `-workers` | Number of concurrent workers       | `int`    | `4`           |
-
-## Roadmap
-
-Follow the project's evolution stages:
-
-- [x] **Phase 1: Foundation** — Worker Pool and streaming core implementation.
-- [x] **Phase 2: Transformation** — Middleware layer (Chain of Responsibility).
-- [x] **Phase 3: Observability** — Atomic metrics and structured logs (`slog`).
-- [x] **Phase 4: Governance** — CI/CD, Professional documentation, and Badges.
-
-## Contributing
-
-Interested in collaborating? Check our [CONTRIBUTING.md](CONTRIBUTING.md) for code standards and PR process.
-
-## License
-
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+---
 
 <div align="center">
 
@@ -166,6 +98,6 @@ This project is licensed under the **MIT License** — see the [LICENSE](LICENSE
 
 Made with ❤️ by [Enoque Sousa](https://github.com/ESousa97)
 
-**Project Status:** Active — Constantly updated
+**Project Status:** Archived — Educational Milestone
 
 </div>

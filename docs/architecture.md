@@ -1,10 +1,10 @@
-# System Architecture
+# Historical Architecture Design
 
-This document details the architectural decisions and data flow of the **Go File Processor**.
+This document serves as a reference for the design decisions made during the development of the **Go File Processor**. This project was a study of Go's system architecture capabilities.
 
-## Data Flow (Pipeline)
+## The Streaming Pipeline
 
-The system uses a parallel streaming pipeline to ensure efficiency with massive files.
+The primary goal was to achieve high throughput with **constant memory usage**. We implemented a pipeline where data is processed in individual records, never loading the entire file into RAM.
 
 ```mermaid
 graph TD
@@ -24,24 +24,21 @@ graph TD
     end
 ```
 
-## Architectural Decisions (ADRs)
+## Core Architectural Lessons
 
-### 1. Worker Pool Pattern
-**Context**: Processing millions of records via a single main loop would cause I/O blocking and CPU underutilization.
-**Decision**: Implement a pool of goroutines (Workers) that process records in parallel.
-**Consequence**: Significant throughput increase on multi-core systems.
+### 1. The Worker Pool Pattern
+**Learning Goal**: Understand how to scale processing by decoupling the producer from the consumers using channels.
+**Implementation**: A fixed number of goroutines (Workers) listen on a shared channel.
+**Outcome**: High CPU utilization across all cores without manual thread management.
 
-### 2. Streaming vs Batching
-**Context**: Loading the entire file into memory (Full Read) can cause OOM (Out Of Memory) on files dozens of GBs in size.
-**Decision**: Process via `io.Reader` and `io.Writer`, keeping only the stream buffer in memory.
-**Consequence**: Constant RAM consumption (~20-50MB) regardless of file size.
+### 2. Backpressure Management
+**Learning Goal**: How to prevent the producer from overwhelming the consumer.
+**Implementation**: Using buffered channels as a "shock absorber" for data bursts.
 
-### 3. Middleware for Transformations
-**Context**: Transformation/filter logic should be flexible and decoupled from the core Worker code.
-**Decision**: Use the "Chain of Responsibility" pattern via the `Transformer func(*User) bool` type.
-**Consequence**: Ease of adding new filters without changing the main worker loop.
+### 3. Decoupled Middleware
+**Learning Goal**: Implementing clean, pluggable logic using Go's function types.
+**Implementation**: Using `Transformer func(*User) bool` as a chain of responsibility.
 
-### 4. Atomic Metrics
-**Context**: Multiple workers need to update success/error counters simultaneously. Mutexes could cause contention.
-**Decision**: Use `sync/atomic` for lock-free counting.
-**Consequence**: Maximum performance in high-concurrency scenarios.
+### 4. Lock-Free Metrics
+**Learning Goal**: Avoiding mutex contention in high-concurrency environments.
+**Implementation**: Using the `sync/atomic` package for thread-safe global counters.
