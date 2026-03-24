@@ -1,29 +1,29 @@
-# Contribuindo para o Go File Processor
+# Contributing to Go File Processor
 
-Obrigado por seu interesse em contribuir! Este projeto segue padrões rigorosos de qualidade e concorrência em Go.
+Thank you for your interest in contributing! This project follows rigorous standards for quality and concurrency in Go.
 
-## Setup de Desenvolvimento
+## Development Setup
 
-1.  **Requisitos**: Go 1.22+ e `make`.
+1.  **Requirements**: Go 1.22+ and `make`.
 2.  **Clone**: `git clone https://github.com/ESousa97/go-file-processor.git`.
-3.  **Testes**: Use `make test` para garantir que tudo está ok.
+3.  **Tests**: Use `make test` to ensure everything is OK.
 
-## Convenções de Código
+## Code Conventions
 
-- Siga o [Effective Go](https://golang.org/doc/effective_go.html).
-- Rode `go fmt` antes de cada commit.
-- Todos os itens exportados devem ter Godoc comments profissional em Português.
-- Mantenha a modularização extrema: cada arquivo com uma responsabilidade única.
+- Follow [Effective Go](https://golang.org/doc/effective_go.html).
+- Run `go fmt` before each commit.
+- All exported items must have professional Godoc comments in English.
+- Maintain extreme modularization: each file with a single responsibility.
 
-## Processo de Pull Request
+## Pull Request Process
 
-1.  Crie uma branch descritiva (`feature/`, `fix/`, `perf/`).
-2.  Garanta que os benchmarks não regrediram via `make bench`.
-3.  Atualize o `CHANGELOG.md` na seção `[Unreleased]`.
-4.  Solicite revisão de código.
+1.  Create a descriptive branch (`feature/`, `fix/`, `perf/`).
+2.  Ensure benchmarks haven't regressed via `make bench`.
+3.  Update `CHANGELOG.md` in the `[Unreleased]` section.
+4.  Request a code review.
 
-## Áreas de Contribuição
+## Areas for Contribution
 
-- Suporte a novos formatos (XML, Avro).
-- Otimização do Consumer para reduzir ainda mais o overhead de serialização.
-- Melhorias na CLI (ex: progress bar mais detalhada).
+- Support for new formats (XML, Avro).
+- Consumer optimization to further reduce serialization overhead.
+- CLI improvements (e.g., more detailed progress bar).

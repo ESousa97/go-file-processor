@@ -1,47 +1,47 @@
-# Arquitetura do Sistema
+# System Architecture
 
-Este documento detalha as decisões arquiteturais e o fluxo de dados do **Go File Processor**.
+This document details the architectural decisions and data flow of the **Go File Processor**.
 
-## Fluxo de Dados (Pipeline)
+## Data Flow (Pipeline)
 
-O sistema utiliza um pipeline de streaming paralelo para garantir eficiência em arquivos massivos.
+The system uses a parallel streaming pipeline to ensure efficiency with massive files.
 
 ```mermaid
 graph TD
-    A[Arquivo CSV] --> B[Producer]
-    B --> C{Canal de Jobs}
+    A[CSV File] --> B[Producer]
+    B --> C{Job Channel}
     C --> D1[Worker 1]
     C --> D2[Worker 2]
     C --> DN[Worker N]
-    D1 --> E[Canal de Resultados]
+    D1 --> E[Result Channel]
     D2 --> E
     DN --> E
     E --> F[Consumer]
-    F --> G[Arquivo JSON]
+    F --> G[JSON File]
     
-    subgraph "Transformação (Middleware)"
+    subgraph "Transformation (Middleware)"
         D1 -.-> T[Transformer Chain]
     end
 ```
 
-## Decisões Arquiteturais (ADRs)
+## Architectural Decisions (ADRs)
 
 ### 1. Worker Pool Pattern
-**Contexto**: Processar milhões de registros via um único loop principal causaria bloqueio de I/O e subutilização da CPU.
-**Decisão**: Implementar um pool de goroutines (Workers) que processam registros em paralelo.
-**Consequência**: Aumento significativo de throughput em sistemas multi-core.
+**Context**: Processing millions of records via a single main loop would cause I/O blocking and CPU underutilization.
+**Decision**: Implement a pool of goroutines (Workers) that process records in parallel.
+**Consequence**: Significant throughput increase on multi-core systems.
 
 ### 2. Streaming vs Batching
-**Contexto**: Carregar o arquivo inteiro na memória (Full Read) pode causar OOM (Out Of Memory) em arquivos de dezenas de GBs.
-**Decisão**: Processar via `io.Reader` e `io.Writer`, mantendo apenas o buffer de stream em memória.
-**Consequência**: Consumo de RAM constante (~20-50MB) independente do tamanho do arquivo.
+**Context**: Loading the entire file into memory (Full Read) can cause OOM (Out Of Memory) on files dozens of GBs in size.
+**Decision**: Process via `io.Reader` and `io.Writer`, keeping only the stream buffer in memory.
+**Consequence**: Constant RAM consumption (~20-50MB) regardless of file size.
 
-### 3. Middleware para Transformações
-**Contexto**: A lógica de transformação/filtro deve ser flexível e desacoplada do código core do Worker.
-**Decisão**: Usar o padrão "Chain of Responsibility" via o tipo `Transformer func(*User) bool`.
-**Consequência**: Facilidade para adicionar novos filtros sem alterar o loop principal do worker.
+### 3. Middleware for Transformations
+**Context**: Transformation/filter logic should be flexible and decoupled from the core Worker code.
+**Decision**: Use the "Chain of Responsibility" pattern via the `Transformer func(*User) bool` type.
+**Consequence**: Ease of adding new filters without changing the main worker loop.
 
-### 4. Métricas Atômicas
-**Contexto**: Múltiplos workers precisam atualizar contadores de sucesso/erro simultaneamente. Mutexes poderiam causar contenção.
-**Decisão**: Usar `sync/atomic` para contagem sem locks.
-**Consequência**: Performance máxima em cenários de alta concorrência.
+### 4. Atomic Metrics
+**Context**: Multiple workers need to update success/error counters simultaneously. Mutexes could cause contention.
+**Decision**: Use `sync/atomic` for lock-free counting.
+**Consequence**: Maximum performance in high-concurrency scenarios.

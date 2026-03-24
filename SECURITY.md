@@ -1,19 +1,19 @@
-# Política de Segurança
+# Security Policy
 
-## Reportando uma Vulnerabilidade
+## Reporting a Vulnerability
 
-Levamos a segurança a sério. Se você encontrar uma vulnerabilidade de segurança, por favor, siga o processo abaixo:
+We take security seriously. If you find a security vulnerability, please follow the process below:
 
-1.  **Não abra uma issue pública**.
-2.  Envie um email detalhado para [enoquesousa@exemplo.com](mailto:enoquesousa@exemplo.com) ou entre em contato via LinkedIn.
-3.  Forneça passos reprodutíveis, o potencial impacto e qualquer sugestão de correção.
+1.  **Do not open a public issue**.
+2.  Send a detailed email to [enoquesousa@example.com](mailto:enoquesousa@example.com) or contact us via LinkedIn.
+3.  Provide reproducible steps, potential impact, and any suggestions for a fix.
 
-## SLA de Resposta
+## Response SLA
 
-- **Reconhecimento**: 24 horas.
-- **Avaliação inicial**: 3 dias úteis.
-- **Fix/Patch**: Dependendo da severidade, priorizaremos a correção imediata.
+- **Acknowledgment**: 24 hours.
+- **Initial evaluation**: 3 business days.
+- **Fix/Patch**: Depending on severity, we will prioritize an immediate fix.
 
-## Versões Suportadas
+## Supported Versions
 
-Atualmente, apenas a versão `main` (v1.x) recebe atualizações de segurança.
+Currently, only the `main` version (v1.x) receives security updates.

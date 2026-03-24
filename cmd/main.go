@@ -53,11 +53,11 @@ func main() {
 	}
 
 	// Display Execution Summary
-	fmt.Printf("\n--- RESUMO DE EXECUÇÃO ---\n")
-	fmt.Printf("Total de linhas lidas: %d\n", metrics.TotalLines)
-	fmt.Printf("Processadas com sucesso: %d\n", metrics.SuccessCount)
-	fmt.Printf("Linhas com erro/ignoradas: %d\n", metrics.ErrorCount)
-	fmt.Printf("Tempo total: %s\n", metrics.Duration.Round(time.Millisecond))
+	fmt.Printf("\n--- EXECUTION SUMMARY ---\n")
+	fmt.Printf("Total lines read: %d\n", metrics.TotalLines)
+	fmt.Printf("Successfully processed: %d\n", metrics.SuccessCount)
+	fmt.Printf("Errors/Ignored lines: %d\n", metrics.ErrorCount)
+	fmt.Printf("Total time: %s\n", metrics.Duration.Round(time.Millisecond))
 	fmt.Printf("--------------------------\n")
 }
 

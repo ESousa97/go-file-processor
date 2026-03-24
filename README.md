@@ -1,6 +1,6 @@
 <div align="center">
   <h1>Go File Processor</h1>
-  <p>Processamento paralelo e resiliente de arquivos massivos com Worker Pool em Go.</p>
+  <p>Parallel and resilient processing of massive files with Worker Pool in Go.</p>
 
   <img src="assets/github-go.png" alt="Go File Processor Banner" width="600px">
 
@@ -18,28 +18,28 @@
 
 ---
 
-O **Go File Processor** é uma ferramenta de linha de comando e biblioteca de alto desempenho projetada para converter arquivos CSV massivos (milhões de registros) em JSON estruturado de forma eficiente. Utilizando o padrão Worker Pool e processamento via canais (channels), garante o uso otimizado de CPU e memória constante, independentemente do tamanho do arquivo de entrada.
+**Go File Processor** is a high-performance command-line tool and library designed to efficiently convert massive CSV files (millions of records) into structured JSON. Using the Worker Pool pattern and channel-based processing, it ensures optimized CPU usage and constant memory consumption, regardless of the input file size.
 
-## Demonstração
+## Demonstration
 
-### Como Biblioteca
+### As a Library
 
-Adicione transformadores e configure o pool de execução de forma fluida:
+Add transformers and configure the execution pool fluently:
 
 ```go
 proc := processor.NewCSVToJSONProcessor()
 config := processor.Config{WorkerCount: 8}
 
-// Adicione transformadores (Chain of Responsibility)
+// Add transformers (Chain of Responsibility)
 config.AddTransformer(processor.EmailFilter(`@company.com$`))
 config.AddTransformer(processor.FieldMasker("email"))
 
 metrics, err := proc.Process("input.csv", "output.json", config)
 ```
 
-### Como CLI
+### As a CLI
 
-Execute processamentos massivos com métricas em tempo real:
+Run massive processing with real-time metrics:
 
 ```bash
 ./fileproc -input data.csv -output data.json -workers 4
@@ -48,32 +48,32 @@ Execute processamentos massivos com métricas em tempo real:
 Output:
 
 ```text
-[INFO] Iniciando processamento...
-[INFO] Progresso: 100000 linhas processadas
-[RESUMO] EXECUÇÃO CONCLUÍDA EM 1.2s
-- Total de linhas lidas: 100000
-- Processadas com sucesso: 98500
-- Erros/Ignoradas: 1500
+[INFO] Starting processing...
+[INFO] Progress: 100000 rows processed
+[SUMMARY] EXECUTION COMPLETED IN 1.2s
+- Total lines read: 100000
+- Successfully processed: 98500
+- Errors/Ignored: 1500
 ```
 
-## Stack Tecnológico
+## Tech Stack
 
-| Tecnologia          | Papel                                                               |
+| Technology          | Role                                                                |
 | ------------------- | ------------------------------------------------------------------- |
-| **Go 1.22+**        | Linguagem principal com concorrência nativa de alta performance     |
-| **Worker Pool**     | Gerenciamento de paralelismo e controle de carga                    |
-| **slog**            | Structured logging para observabilidade e rastreabilidade           |
-| **Atomic Counters** | Coleta de métricas de alta performance sem contenção (lock-free)    |
-| **Channels**        | Comunicação segura e desacoplada entre Producer, Workers e Consumer |
+| **Go 1.22+**        | Core language with high-performance native concurrency              |
+| **Worker Pool**     | Parallelism management and load control                             |
+| **slog**            | Structured logging for observability and traceability               |
+| **Atomic Counters** | High-performance metrics collection without contention (lock-free)  |
+| **Channels**        | Secure and decoupled communication between Producer, Workers, and Consumer |
 
-## Pré-requisitos
+## Prerequisites
 
 - **Go >= 1.22**
-- **Make** (para automação de build e benchmarks)
+- **Make** (for build automation and benchmarks)
 
-## Instalação e Uso
+## Installation and Usage
 
-### A partir do source
+### From Source
 
 ```bash
 git clone https://github.com/ESousa97/go-file-processor.git
@@ -81,9 +81,9 @@ cd go-file-processor
 make build
 ```
 
-### Geração de Dados e Benchmark
+### Data Generation and Benchmark
 
-Para validar a performance com arquivos de 100k+ linhas:
+To validate performance with 100k+ row files:
 
 ```bash
 make generate-data
@@ -92,17 +92,17 @@ make bench
 
 ## Makefile Targets
 
-| Target               | Descrição                                                 |
+| Target               | Description                                               |
 | -------------------- | --------------------------------------------------------- |
-| `make build`         | Compila o binário `fileproc` na raiz do projeto           |
-| `make test`          | Executa a suíte de testes unitários                       |
-| `make bench`         | Roda comparativos de performance (Sequencial vs Paralelo) |
-| `make generate-data` | Gera arquivo de teste massivo (100.000 registros)         |
-| `make clean`         | Remove binários e arquivos temporários                    |
+| `make build`         | Compiles the `fileproc` binary at the project root        |
+| `make test`          | Runs the unit test suite                                  |
+| `make bench`         | Runs performance comparisons (Sequential vs Parallel)     |
+| `make generate-data` | Generates a massive test file (100,000 records)           |
+| `make clean`         | Removes binaries and temporary files                      |
 
-## Arquitetura
+## Architecture
 
-O projeto utiliza um modelo de streaming baseado em canais para processar dados sem carregar o arquivo inteiro na memória.
+The project uses a channel-based streaming model to process data without loading the entire file into memory.
 
 ```mermaid
 graph LR
@@ -125,36 +125,36 @@ graph LR
 
 ## API Reference
 
-Documentação técnica detalhada disponível em [pkg.go.dev/github.com/ESousa97/go-file-processor](https://pkg.go.dev/github.com/ESousa97/go-file-processor).
+Detailed technical documentation available at [pkg.go.dev/github.com/ESousa97/go-file-processor](https://pkg.go.dev/github.com/ESousa97/go-file-processor).
 
-## Configuração (CLI Flags)
+## Configuration (CLI Flags)
 
-| Flag       | Descrição                         | Tipo     | Padrão        |
+| Flag       | Description                       | Type     | Default       |
 | ---------- | --------------------------------- | -------- | ------------- |
-| `-input`   | Caminho do arquivo CSV de entrada | `string` | `input.csv`   |
-| `-output`  | Caminho do arquivo JSON de saída  | `string` | `output.json` |
-| `-workers` | Número de workers simultâneos     | `int`    | `4`           |
+| `-input`   | Input CSV file path               | `string` | `input.csv`   |
+| `-output`  | Output JSON file path             | `string` | `output.json` |
+| `-workers` | Number of concurrent workers       | `int`    | `4`           |
 
 ## Roadmap
 
-Acompanhe as etapas de evolução do projeto:
+Follow the project's evolution stages:
 
-- [x] **Fase 1: Fundação** — Implementação do Worker Pool e streaming core.
-- [x] **Fase 2: Transformação** — Camada de Middleware (Chain of Responsibility).
-- [x] **Fase 3: Observabilidade** — Métricas atômicas e logs estruturados (`slog`).
-- [x] **Fase 4: Governança** — CI/CD, Documentação profissional e Badges.
+- [x] **Phase 1: Foundation** — Worker Pool and streaming core implementation.
+- [x] **Phase 2: Transformation** — Middleware layer (Chain of Responsibility).
+- [x] **Phase 3: Observability** — Atomic metrics and structured logs (`slog`).
+- [x] **Phase 4: Governance** — CI/CD, Professional documentation, and Badges.
 
-## Contribuindo
+## Contributing
 
-Interessado em colaborar? Veja nosso [CONTRIBUTING.md](CONTRIBUTING.md) para padrões de código e processo de PR.
+Interested in collaborating? Check our [CONTRIBUTING.md](CONTRIBUTING.md) for code standards and PR process.
 
-## Licença
+## License
 
-Este projeto está licenciado sob a **MIT License** — veja o arquivo [LICENSE](LICENSE) para detalhes.
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
 
 <div align="center">
 
-## Autor
+## Author
 
 **Enoque Sousa**
 
@@ -162,10 +162,10 @@ Este projeto está licenciado sob a **MIT License** — veja o arquivo [LICENSE]
 [![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white)](https://github.com/ESousa97)
 [![Portfolio](https://img.shields.io/badge/Portfolio-FF5722?style=flat&logo=target&logoColor=white)](https://enoquesousa.vercel.app)
 
-**[⬆ Voltar ao topo](#go-file-processor)**
+**[⬆ Back to top](#go-file-processor)**
 
-Feito com ❤️ por [Enoque Sousa](https://github.com/ESousa97)
+Made with ❤️ by [Enoque Sousa](https://github.com/ESousa97)
 
-**Status do Projeto:** Ativo — Em constante atualização
+**Project Status:** Active — Constantly updated
 
 </div>
